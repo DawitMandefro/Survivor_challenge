@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Josephus Survivor Simulation</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 2rem; background:#f9f9f9; }
+  .container { max-width: 600px; margin: auto; background:#fff; padding:1.5rem; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+  h1 { text-align:center; }
+  label { display:block; margin-top:1rem; }
+  input[type="number"] { width:100%; padding:0.5rem; margin-top:0.2rem; }
+  .methods { margin-top:1rem; }
+  .methods label { display:inline-block; margin-right:1rem; }
+  button { margin-top:1.5rem; padding:0.6rem 1.2rem; cursor:pointer; }
+  #output { margin-top:1.5rem; white-space: pre-wrap; background:#f0f0f0; padding:1rem; border:1px solid #ddd; min-height:150px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Josephus Survivor Simulation</h1>
+  <label for="nInput">Number of people (N)</label>
+  <input type="number" id="nInput" min="1" value="10">
+
+  <label for="kInput">Skip value (K)</label>
+  <input type="number" id="kInput" min="1" value="3">
+
+  <form class="methods">
+    <label><input type="radio" name="method" value="simulation" checked> Simulation (step‑by‑step)</label>
+    <label><input type="radio" name="method" value="recursive"> Recursive (final survivor)</label>
+  </form>
+
+  <button id="runBtn">Run</button>
+
+  <pre id="output"></pre>
+</div>
+
+<script>
+function josephusSimulation(n, k) {
+  let people = Array.from({length: n}, (_, i) => i + 1);
+  let idx = 0;
+  const steps = [];
+  while (people.length > 1) {
+    idx = (idx + k - 1) % people.length;
+    const eliminated = people.splice(idx, 1)[0];
+    steps.push(`Eliminated: ${eliminated}`);
+  }
+  steps.push(`Survivor: ${people[0]}`);
+  return steps.join('\n');
+}
+
+function josephusRecursive(n, k) {
+  if (n === 1) return 1;
+  return (josephusRecursive(n - 1, k) + k - 1) % n + 1;
+}
+
+document.getElementById('runBtn').addEventListener('click', () => {
+  const n = parseInt(document.getElementById('nInput').value);
+  const k = parseInt(document.getElementById('kInput').value);
+  const method = document.querySelector('input[name="method"]:checked').value;
+  const output = document.getElementById('output');
+
+  if (isNaN(n) || isNaN(k) || n <= 0 || k <= 0) {
+    output.textContent = 'Please enter valid positive integers for N and K.';
+    return;
+  }
+
+  if (method === 'simulation') {
+    output.textContent = josephusSimulation(n, k);
+  } else {
+    const survivor = josephusRecursive(n, k);
+    output.textContent = `Survivor (recursive): ${survivor}`;
+  }
+});
+</script>
+</body>
+</html>
